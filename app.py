@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import json
 from ultralytics import YOLO
 import shutil
@@ -23,7 +23,7 @@ def hello_world():
             # If 'arg' is not provided, raise an exception
             raise ValueError("No 'arg' parameter provided.")
         # Rest of your code here... 
-        return process(imgz,uuid)
+        return jsonify(process(imgz,uuid))
 
     except ValueError as e:
         return f"Error: {e}", 400
