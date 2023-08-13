@@ -2,6 +2,7 @@ from flask import Flask, request
 import json
 from ultralytics import YOLO
 import shutil
+import os
 import PIL.Image
 import PIL.ExifTags
 import firebase_admin  
@@ -13,11 +14,23 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def hello_world():
-    args = request.args
-    imgz, uuid = args.values()
-    return process(imgz,uuid)
+    try:
+        # Attempt to get the value of the 'arg' parameter from the request
+        args = request.args
+        imgz, uuid = args.values()
+        
+        if imgz and uuid is None:
+            # If 'arg' is not provided, raise an exception
+            raise ValueError("No 'arg' parameter provided.")
+        # Rest of your code here... 
+        return process(imgz,uuid)
+
+    except ValueError as e:
+        return f"Error: {e}", 400
+    
 if __name__ == '__main__':
     app.run()
+
 
 
 def process(imgz, uuid):
@@ -54,8 +67,12 @@ def process(imgz, uuid):
     blob = bucket.blob(f"{uuid}/results/{trimmedImgz}")
     blob.upload_from_filename(resultPath)
     blob.make_public()
-    shutil.rmtree("./runs", ignore_errors=True)
 
+    
+    shutil.rmtree("./runs", ignore_errors=True) 
+    temp.close()
+    os.remove(imgz1)
+    
 
     return {
         "geo_tag": geo_tag,
@@ -63,3 +80,5 @@ def process(imgz, uuid):
     }
 
 # https://storage.googleapis.com/reva2-aca6e.appspot.com/image.jpg
+
+#im.close()
