@@ -13,6 +13,9 @@ from firebase_admin import storage
 
 app = Flask(__name__)
 CORS(app)
+cred = credentials.Certificate("./key.json")
+firebase_admin.initialize_app(cred, {'storageBucket': 'plastic-detection-598e8.appspot.com'})
+
 
 @app.route('/', methods=['GET'])
 def hello_world():
@@ -36,8 +39,6 @@ if __name__ == '__main__':
 
 
 def process(imgz, uuid):
-    cred = credentials.Certificate("./key.json")
-    firebase_admin.initialize_app(cred, {'storageBucket': 'plastic-detection-598e8.appspot.com'})
     # to read and predict plastic in image
     # pretrained YOLOv8 model
    
