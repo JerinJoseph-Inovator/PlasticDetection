@@ -50,19 +50,30 @@ def process(imgz, uuid):
     # Spliting the Link string to get file name and creating file path
     trimmedImgz = imgz.split("/")[-1]
     imgz1 = f'./{trimmedImgz}'
-    temp = PIL.Image.open(imgz1)
-    exif = {
-        PIL.ExifTags.TAGS[k]: v
-        for k, v in temp._getexif().items()
-        if k in PIL.ExifTags.TAGS
-    }
-    north = exif["GPSInfo"][2]
-    east = exif["GPSInfo"][4]
-    lat = ((((north[0] * 60) + north[1]) * 60) + north[2]) / 60 / 60
-    lon = ((((east[0] * 60) + east[1]) * 60) + east[2]) / 60 / 60
-    lat, lon = float(lat), float(lon)
-    # RESULT
-    geo_tag = f"https://www.google.com/maps/place/10%C2%B053'45.1%22N+106%C2%B041'38.3%22E/@{lat},{lon}"
+    try:
+        temp = PIL.Image.open(imgz1)
+        exif = {
+            PIL.ExifTags.TAGS[k]: v
+            for k, v in temp._getexif().items()
+            if k in PIL.ExifTags.TAGS
+        }
+
+        if "GPSInfo" in exif:
+            north = exif["GPSInfo"][2]
+            east = exif["GPSInfo"][4]
+            lat = ((((north[0] * 60) + north[1]) * 60) + north[2]) / 60 / 60
+            lon = ((((east[0] * 60) + east[1]) * 60) + east[2]) / 60 / 60
+            lat, lon = float(lat), float(lon)
+            # RESULT
+            geo_tag = f"https://www.google.com/maps/place/10%C2%B053'45.1%22N+106%C2%B041'38.3%22E/@{lat},{lon}"
+        else:
+            # No GPSInfo found in the image
+            geo_tag = "No GPS information available"
+    except Exception as e:
+    # Handle any other exceptions that might occur during image processing
+        geo_tag = f"Error: {str(e)}"
+        # ||| END OF GEO TAGGING | STARTING TO STORE DATA IN FIREBASE DB
+        
     resultPath = f'runs/detect/predict/{imgz.split("/")[-1]}'
     # Result Back To Firebase Storage
     bucket = storage.bucket()
