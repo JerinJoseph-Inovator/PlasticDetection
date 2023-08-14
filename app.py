@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import json
 from ultralytics import YOLO
 import shutil
@@ -11,6 +12,7 @@ from firebase_admin import storage
 
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/', methods=['GET'])
 def hello_world():
