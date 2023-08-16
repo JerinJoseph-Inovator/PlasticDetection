@@ -3,19 +3,17 @@ from flask_cors import CORS
 import json
 from ultralytics import YOLO
 import shutil
-import os
+import os, random
 import PIL.Image
 import PIL.ExifTags
 import firebase_admin  
 from firebase_admin import credentials
 from firebase_admin import storage
 
-
 app = Flask(__name__)
 CORS(app)
 cred = credentials.Certificate("./key.json")
 firebase_admin.initialize_app(cred, {'storageBucket': 'plastic-detection-598e8.appspot.com'})
-
 
 @app.route('/', methods=['GET'])
 def hello_world():
@@ -36,7 +34,7 @@ def hello_world():
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
 
-
+    
 
 def process(imgz, uuid):
     # to read and predict plastic in image
@@ -74,11 +72,13 @@ def process(imgz, uuid):
     # Handle any other exceptions that might occur during image processing
         geo_tag = f"Error: {str(e)}"
         # ||| END OF GEO TAGGING | STARTING TO STORE DATA IN FIREBASE DB
-        
+
     resultPath = f'runs/detect/predict/{imgz.split("/")[-1]}'
     # Result Back To Firebase Storage
     bucket = storage.bucket()
     blob = bucket.blob(f"{uuid}/results/{trimmedImgz}")
+    if blob.exists():
+            blob.delete()
     blob.upload_from_filename(resultPath)
     blob.make_public()
 
