@@ -26,7 +26,7 @@ def hello_world():
             # If 'arg' is not provided, raise an exception
             raise ValueError("No 'arg' parameter provided.")
         # Rest of your code here... 
-        return jsonify(process(imgz,uuid))
+        return jsonify(process(imgz,uuid)).headers.add("Access-Control-Allow-Origin", "*")
 
     except ValueError as e:
         return f"Error: {e}", 400
