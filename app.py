@@ -16,6 +16,7 @@ cred = credentials.Certificate("./key.json")
 firebase_admin.initialize_app(cred, {'storageBucket': 'plastic-detection-598e8.appspot.com'})
 
 @app.route('/', methods=['GET'])
+@cross_origin()
 def hello_world():
     try:
         # Attempt to get the value of the 'arg' parameter from the request
